@@ -6,11 +6,12 @@ export class TowerEventsController extends BaseController {
   constructor() {
     super('api/events')
     this.router
+      .get('', this.getAll)
+      .get('/:eventId', this.getById)
       .use(Auth0Provider.getAuthorizedUserInfo)
       .post('', this.create)
-      .get('', this.getAll)
-      .get('/:towerEventId', this.getById)
-      .put('/:towerEventId', this.edit)
+      .delete('/:eventId', this.remove)
+      .put('/:eventId', this.edit)
   }
 
   async create(req, res, next) {
@@ -25,8 +26,7 @@ export class TowerEventsController extends BaseController {
 
   async getAll(req, res, next) {
     try {
-      req.query.creatorId = req.userInfo.id
-      const towerEvents = await towerEventsService.getAllTowerEvents(req.query)
+      const towerEvents = await towerEventsService.getAllTowerEvents()
       return res.send(towerEvents)
     } catch (error) {
       next(error)
@@ -35,7 +35,7 @@ export class TowerEventsController extends BaseController {
 
   async getById(req, res, next) {
     try {
-      const towerEvent = await towerEventsService.getTowerEventById(req.params.towerEventId)
+      const towerEvent = await towerEventsService.getTowerEventById(req.params.eventId)
       return res.send(towerEvent)
     } catch (error) {
       next(error)
@@ -45,12 +45,19 @@ export class TowerEventsController extends BaseController {
   async edit(req, res, next) {
     try {
       req.body.creatorId = req.userInfo.id
-      req.body.towerEventId = req.params.towerEventId
-      const updatedTowerEvent = await towerEventsService.editTowerEvent(req.body, req.params.towerEventId)
+      const updatedTowerEvent = await towerEventsService.editTowerEvent(req.body, req.params.eventId)
       return res.send(updatedTowerEvent)
     } catch (error) {
       next(error)
     }
 
+  }
+  async remove(req, res, next) {
+    try {
+      const cancelledEvent = await towerEventsService.removeTowerEvent(req.params.eventId, req.userInfo.id)
+      return res.send(cancelledEvent)
+    } catch (error) {
+      next(error)
+    }
   }
 }

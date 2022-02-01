@@ -7,7 +7,7 @@ export class ValuesController extends BaseController {
     this.router
       .get('', this.getAll)
       // NOTE: Beyond this point all routes require Authorization tokens (the user must be logged in)
-      .use(Auth0Provider.getAuthorizedUserInfo)
+      // .use(Auth0Provider.getAuthorizedUserInfo)
       .post('', this.create)
   }
 
