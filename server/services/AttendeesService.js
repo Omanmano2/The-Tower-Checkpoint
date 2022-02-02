@@ -11,10 +11,14 @@ class AttendeesService {
 
     const createdAttendee = await dbContext.Attendees.create(newAttendee)
     const towerEvent = await dbContext.TowerEvents.findById(newAttendee.eventId)
-    towerEvent.capacity -= 1
-    await towerEvent.save()
-    await createdAttendee.populate('account', 'name picture')
-    return createdAttendee
+    if (towerEvent.capacity == 0) {
+      throw new BadRequest('Capacity is 0')
+    } else {
+      towerEvent.capacity -= 1
+      await towerEvent.save()
+      await createdAttendee.populate('account', 'name picture')
+      return createdAttendee
+    }
   }
 
   async getMyAttendence(accountId) {
