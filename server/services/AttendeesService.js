@@ -29,9 +29,13 @@ class AttendeesService {
 
   async deleteAttendee(attendeeId, userId) {
     const original = await dbContext.Attendees.findById(attendeeId)
-    if (original.creatorId.toString() !== userId) {
+
+    if (original.accountId.toString() !== userId) {
       throw new BadRequest('You cant remove this attendee')
     }
+    const towerEvent = await dbContext.TowerEvents.findById(original.eventId)
+    towerEvent.capacity += 1
+    await towerEvent.save()
     await original.remove()
     return original
   }
